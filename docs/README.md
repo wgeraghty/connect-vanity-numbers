@@ -24,6 +24,7 @@
     See Bootstrapping at https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html
 
 # CDK Commands
+  * `cdk synth`
   * `cdk diff`
   * `cdk deploy`
   * `cdk destroy`
