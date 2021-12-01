@@ -4,6 +4,9 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "settings": {},
-  "extensions": ["amazonwebservices.aws-toolkit-vscode"],
+  "extensions": [
+    "amazonwebservices.aws-toolkit-vscode",
+    "eamodio.gitlens"
+  ],
   "forwardPorts": []
 }
