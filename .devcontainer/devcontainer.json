@@ -1,0 +1,9 @@
+{
+  "name": "Amazon Connect Vanity Numbers",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "settings": {},
+  "extensions": ["amazonwebservices.aws-toolkit-vscode"],
+  "forwardPorts": []
+}
