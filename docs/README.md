@@ -41,6 +41,8 @@
   * `./build.sh`
   * Redeploy main project
 
+# `npm run watch` to compile on the fly
+
 # TODO
   * Figure out minimum IAM permissions for deployment
   * Multiple stacks for front/back?

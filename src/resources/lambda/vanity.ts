@@ -67,7 +67,12 @@ const vanityFromNumber = async (phoneNumber: string): Promise<string[]> => {
   return [phoneNumber, 'FOO', 'BAR']
 }
 
-const handler = async (event: any, context: any) => {
+const handler = async (event: any, context: any): Promise<any> => {
+
+  console.log(event)
+  console.dir(event, { depth: null })
+  console.log(JSON.stringify(event))
+
   try {
     const phoneNumber = '555-1212' // TODO
     let vanityRecord = await load(phoneNumber)
@@ -83,12 +88,21 @@ const handler = async (event: any, context: any) => {
       await save(vanityRecord)
     }
 
-    return vanityRecord
+    // return vanityRecord
+
+    // Amazon Connect expects a string map response
+    return {
+      phoneNumber: vanityRecord.phoneNumber,
+      vanity1: vanityRecord.vanityNumbers[0],
+      vanity2: vanityRecord.vanityNumbers[1],
+      vanity3: vanityRecord.vanityNumbers[2],
+    }
 
   } catch (err) {
     // TODO: Log error
     console.log(err)
-    return null
+
+    return {}
   }
 }
 
