@@ -29,6 +29,18 @@
   * `cdk deploy`
   * `cdk destroy`
 
+# Build Lambda Layer
+  AWS JavaScript SDK V3 is not included in Lambda, a custom layer must be built for it:
+  * `cd /workspace/lambda-layer/`
+  * `./build.sh`
+
+  Any additional required node packages can be added to the layer:
+  * `cd /workspace/lambda-layer/nodejs`
+  * `npm install packageName`
+  * `cd ..`
+  * `./build.sh`
+  * Redeploy main project
+
 # TODO
   * Figure out minimum IAM permissions for deployment
   * Multiple stacks for front/back?

@@ -1,0 +1,21 @@
+Error: Cannot find module '@aws-sdk/client-dynamodb'
+Fix: Custom Lambda layer or use v2 of JavaScript SDK
+
+https://apoorv.blog/lambda-layers-cdk/
+https://github.com/bobbyhadz/aws-cdk-lambda-layers
+https://bobbyhadz.com/blog/aws-cdk-lambda-layers
+https://aws.amazon.com/premiumsupport/knowledge-center/lambda-layer-aws-sdk-latest-version/
+https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html
+
+AWS JavaScript SDK v3 is not provided in Lambda so a custom layer is created to add it
+
+Basically zip a node_modules folder as `nodejs/node_modules/` inside the zip
+
+mkdir nodejs
+cd nodejs/
+npm init -y
+npm install @aws-sdk/client-dynamodb
+npm install @aws-sdk/util-dynamodb
+zip -r ../package.zip ../nodejs/
+cp package.zip /workspace/src/resources/lambda-layer/
+
