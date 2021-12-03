@@ -16,16 +16,16 @@ import { vanityContactFlow } from './vanity-contact-flow'
 // Wrappers
 
 const associateLambda = async (input: AssociateLambdaFunctionCommandInput): Promise<AssociateLambdaFunctionCommandOutput> =>
-  client.send(new AssociateLambdaFunctionCommand(input))
+  await client.send(new AssociateLambdaFunctionCommand(input))
 
 const disassociateLambda = async (input: DisassociateLambdaFunctionCommandInput): Promise<DisassociateLambdaFunctionCommandOutput> =>
-  client.send(new DisassociateLambdaFunctionCommand(input))
+  await client.send(new DisassociateLambdaFunctionCommand(input))
 
 const createFlow = async (input: CreateContactFlowRequest): Promise<CreateContactFlowResponse> =>
-  client.send(new CreateContactFlowCommand(input))
+  await client.send(new CreateContactFlowCommand(input))
 
 const deleteFlow = async (input: DeleteContactFlowCommandInput): Promise<DeleteContactFlowCommandOutput> =>
-  client.send(new DeleteContactFlowCommand(input))
+  await client.send(new DeleteContactFlowCommand(input))
 
 // Main Handler
 
@@ -33,50 +33,58 @@ const handler: CdkCustomResourceHandler = async (
   event: CdkCustomResourceEvent,
   context: Context
 ): Promise<CdkCustomResourceResponse> => {
-  // Sanity check
-  if (event.ResourceProperties?.customAction !== 'CreateContactFlow')
-    return {} // TODO: Return real value for doing nothing?
 
-  if (event.RequestType == 'Create') {
+  console.log(event)
+
+  // Sanity check
+  if (event.ResourceProperties?.customAction !== 'CreateContactFlow') {
+    console.log('doing nothing')
+    return {} // TODO: Return real value for doing nothing?
+  }
+
+  if (event.RequestType == 'Create' || event.RequestType == 'Update') {
     // TODO: Clean this up
 
     // Associate the lambda first, then use it in the flow
 
+    console.log('Associating Lambda')
     const lambdaResult = await associateLambda({
       InstanceId: event.ResourceProperties?.connectInstanceArn,
       FunctionArn: event.ResourceProperties?.vanityLambdaArn
     })
     // TODO: Verify lambdaResult
+    console.log(lambdaResult)
 
-    const flowResult = await createFlow({
-      InstanceId: event.ResourceProperties?.connectInstanceArn,
-      Name: 'Vanity Number Contact Flow',
-      Type: ContactFlowType.CONTACT_FLOW,
-      Content: JSON.stringify(vanityContactFlow(event.ResourceProperties?.vanityLambdaArn))
-    })
-    // TODO: Verify flowResult
+    // const flowResult = await createFlow({
+    //   InstanceId: event.ResourceProperties?.connectInstanceArn,
+    //   Name: 'Vanity Number Contact Flow',
+    //   Type: ContactFlowType.CONTACT_FLOW,
+    //   Content: JSON.stringify(vanityContactFlow(event.ResourceProperties?.vanityLambdaArn))
+    // })
+    // // TODO: Verify flowResult
 
-    return {
-      PhysicalResourceId: flowResult.ContactFlowId
-    }
+    // return {
+    //   PhysicalResourceId: flowResult.ContactFlowId
+    // }
   }
 
-  if (event.RequestType == 'Delete') {
-    // TODO: More cleanup & verifications
+  // if (event.RequestType == 'Delete') {
+  //   // TODO: More cleanup & verifications
 
-    // Remove flow before disassociating lambda
+  //   // Remove flow before disassociating lambda
 
-    const flowResult = await deleteFlow({
-      InstanceId: event.ResourceProperties?.connectInstanceArn,
-      ContactFlowId: event.PhysicalResourceId
-    })
+  //   const flowResult = await deleteFlow({
+  //     InstanceId: event.ResourceProperties?.connectInstanceArn,
+  //     ContactFlowId: event.PhysicalResourceId
+  //   })
 
-    const lambdaResult = await disassociateLambda({
-      InstanceId: event.ResourceProperties?.connectInstanceArn,
-      FunctionArn: event.ResourceProperties?.vanityLambdaArn
-    })
-  }
+  //   const lambdaResult = await disassociateLambda({
+  //     InstanceId: event.ResourceProperties?.connectInstanceArn,
+  //     FunctionArn: event.ResourceProperties?.vanityLambdaArn
+  //   })
+  // }
 
+  console.log('returning')
   return {}
 }
 

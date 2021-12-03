@@ -2,7 +2,8 @@ import * as cdk from '@aws-cdk/core'
 import * as lambda from '@aws-cdk/aws-lambda'
 import * as dynamodb from '@aws-cdk/aws-dynamodb'
 import * as iam from '@aws-cdk/aws-iam'
-// import * as cr from '@aws-cdk/custom-resources'
+import * as cr from '@aws-cdk/custom-resources'
+import * as logs from '@aws-cdk/aws-logs'
 
 import { RemovalPolicy } from '@aws-cdk/core'
 
@@ -10,13 +11,20 @@ export class VanityStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
+    // const waitHandle = new cdk.CfnWaitConditionHandle(this, 'WaitConditionHandle')
+    // const waitCondition = new cdk.CfnWaitCondition(this, 'WaitCondition', {
+    //   count: 1,
+    //   handle: waitHandle.ref,
+    //   timeout: '60'
+    // })
+    // scope.node.addDependency(waitCondition)
+
     // https://bobbyhadz.com/blog/aws-cdk-parameters-example#caveats-when-using-cdk-parameters
     // TODO: Switch to ENV instead of Parameter?
     const connectInstanceArn = new cdk.CfnParameter(this, 'connectInstanceArn', {
       type: 'String',
       description: 'The ARN of the Amazon Connect instance you want to use.'
     })
-    console.log('connectInstanceArn:', connectInstanceArn.valueAsString)
 
     const vanityTable = new dynamodb.Table(this, 'VanityNumber', {
       partitionKey: {
@@ -71,24 +79,45 @@ export class VanityStack extends cdk.Stack {
         iam.PolicyStatement.fromJson({
           Sid: 'CreateContactFlow',
           Effect: 'Allow',
-          Action: ['connect:CreateContactFlow'],
+          Action: [
+            'connect:AssociateLambdaFunction',
+            'connect:DisassociateLambdaFunction',
+            'connect:CreateContactFlow',
+            'connect:DeleteContactFlow'
+          ],
           Resource: [`${connectInstanceArn.valueAsString}`, `${connectInstanceArn.valueAsString}/*`],
         }),
+        // Also required or it will not see the lambda
+        // Note: Manually create an IAM role to see what hints it gives for additional necessary permissions
+        iam.PolicyStatement.fromJson({
+          Sid: 'CreateContactFlowLambda',
+          Effect: 'Allow',
+          Action: [
+            'lambda:AddPermission',
+            'lambda:RemovePermission',
+          ],
+          Resource: [vanityLambda.functionArn],
+        })
       ],
     })
     customResourceLambda.role?.addManagedPolicy(createContactFlowPolicy)
 
-    // TODO: Figure out if this is necessary to wrap the lambda
-    // const provider = cr.Provider({ ... })
+    const provider = new cr.Provider(this, 'CustomResourceProvider', {
+      onEventHandler: customResourceLambda,
+      logRetention: logs.RetentionDays.ONE_DAY
+      // totalTimeout: cdk.Duration.minutes(1) // Requires isCompleteHandler
+    })
 
     // Process Contact Flow via CR Handler
     const customResource = new cdk.CustomResource(this, 'CreateContactFlow', {
-      serviceToken: customResourceLambda.functionArn, // TODO?: provider.serviceToken ... this would wrap the lambda?
+      serviceToken: provider.serviceToken, // Can use lambda directly if no provider is necessary: customResourceLambda.functionArn
       resourceType: 'Custom::LoadLambda',
       properties: {
         customAction: 'CreateContactFlow',
         connectInstanceArn: connectInstanceArn.valueAsString,
-        vanityLambdaArn: vanityLambda.functionArn
+        vanityLambdaArn: vanityLambda.functionArn,
+        vanityLambdaName: vanityLambda.functionName,
+        counter: 3
       }
     })
   }
