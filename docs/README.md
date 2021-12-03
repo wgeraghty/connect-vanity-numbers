@@ -27,6 +27,7 @@
   * `cdk synth`
   * `cdk diff`
   * `cdk deploy`
+    --parameters connectInstanceArn=arn:aws:connect:::/
   * `cdk destroy`
 
 # Build Lambda Layer
@@ -36,7 +37,7 @@
 
   Any additional required node packages can be added to the layer:
   * `cd /workspace/lambda-layer/nodejs`
-  * `npm install packageName`
+  * `npm install {packageName}`
   * `cd ..`
   * `./build.sh`
   * Redeploy main project

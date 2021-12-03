@@ -2,7 +2,7 @@ import { CdkCustomResourceEvent, CdkCustomResourceHandler, CdkCustomResourceResp
 import {
   AssociateLambdaFunctionCommand, AssociateLambdaFunctionCommandInput, AssociateLambdaFunctionCommandOutput,
   ConnectClient, ContactFlowType,
-  CreateContactFlowCommand, CreateContactFlowCommandInput, CreateContactFlowModuleCommandOutput,
+  CreateContactFlowCommand, CreateContactFlowCommandInput, CreateContactFlowCommandOutput,
   DeleteContactFlowCommand, DeleteContactFlowCommandInput, DeleteContactFlowCommandOutput,
   DisassociateLambdaFunctionCommand, DisassociateLambdaFunctionCommandInput, DisassociateLambdaFunctionCommandOutput
 } from '@aws-sdk/client-connect'
@@ -19,7 +19,7 @@ const associateLambda = async (input: AssociateLambdaFunctionCommandInput): Prom
 const disassociateLambda = async (input: DisassociateLambdaFunctionCommandInput): Promise<DisassociateLambdaFunctionCommandOutput> =>
   await client.send(new DisassociateLambdaFunctionCommand(input))
 
-const createFlow = async (input: CreateContactFlowCommandInput): Promise<CreateContactFlowModuleCommandOutput> =>
+const createFlow = async (input: CreateContactFlowCommandInput): Promise<CreateContactFlowCommandOutput> =>
   await client.send(new CreateContactFlowCommand(input))
 
 const deleteFlow = async (input: DeleteContactFlowCommandInput): Promise<DeleteContactFlowCommandOutput> =>
@@ -59,9 +59,7 @@ const handler: CdkCustomResourceHandler = async (
 
     console.log('Creating Contact Flow')
 
-    const content = JSON
-      .stringify(vanityContactFlow(event.ResourceProperties?.vanityLambdaArn))
-      //.replace(/"/g, '\\"') // Needs escaped quotes?
+    const content = JSON.stringify(vanityContactFlow(event.ResourceProperties?.vanityLambdaArn))
     console.log(content)
 
     const flowResult = await createFlow({
@@ -74,8 +72,9 @@ const handler: CdkCustomResourceHandler = async (
     console.log(flowResult)
 
     console.log('Returning')
+
     return {
-      PhysicalResourceId: flowResult.Id
+      PhysicalResourceId: flowResult.ContactFlowId
     }
   }
 
@@ -83,12 +82,11 @@ const handler: CdkCustomResourceHandler = async (
     // TODO: More cleanup & verifications
 
     // Remove flow before disassociating lambda
-    // WARNING: Does not seem to be implemented by AWS
-    // console.log('Deleting Contact Flow')
-    // const flowResult = await deleteFlow({
-    //   InstanceId: connectInstanceId,
-    //   ContactFlowId: event.PhysicalResourceId
-    // })
+    console.log('Deleting Contact Flow')
+    const flowResult = await deleteFlow({
+      InstanceId: connectInstanceId,
+      ContactFlowId: event.PhysicalResourceId
+    })
 
     console.log('Disassociating Contact Flow')
     const lambdaResult = await disassociateLambda({
