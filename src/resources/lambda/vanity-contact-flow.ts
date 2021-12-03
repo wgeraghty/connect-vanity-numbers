@@ -1,70 +1,32 @@
+// Use `aws connect describe-contact-flow` to figure this out
+// aws connect describe-contact-flow --instance-id INSTANCE_ID --contact-flow-id CONTACT_FLOW_ID
+// Find the values in the URL of the Web UI
+// Do not use the downloaded version from the Web UI
+
 const vanityContactFlow = (lambdaArn: string) => ({
-  "modules": [
-    {
-      "id": "5226b371-506d-4016-b05e-de46d2ddad6f",
-      "type": "PlayPrompt",
-      "branches": [
-        {
-          "condition": "Success",
-          "transition": "f11eab37-3e3e-439e-96d2-e39e7374fee8"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "Text",
-          "value": "Error",
-          "namespace": null
-        },
-        {
-          "name": "TextToSpeechType",
-          "value": "text"
-        }
-      ],
-      "metadata": {
+  "Version": "2019-10-30",
+  "StartAction": "45d7b06a-9ba0-49e1-a926-c2c084b55dbe",
+  "Metadata": {
+    "entryPointPosition": {
+      "x": 20,
+      "y": 20
+    },
+    "snapToGrid": false,
+    "ActionMetadata": {
+      "5226b371-506d-4016-b05e-de46d2ddad6f": {
         "position": {
           "x": 766,
           "y": 281
         },
         "useDynamic": false
-      }
-    },
-    {
-      "id": "f11eab37-3e3e-439e-96d2-e39e7374fee8",
-      "type": "Disconnect",
-      "branches": [],
-      "parameters": [],
-      "metadata": {
+      },
+      "f11eab37-3e3e-439e-96d2-e39e7374fee8": {
         "position": {
           "x": 1135,
           "y": 93
         }
-      }
-    },
-    {
-      "id": "45d7b06a-9ba0-49e1-a926-c2c084b55dbe",
-      "type": "InvokeExternalResource",
-      "branches": [
-        {
-          "condition": "Success",
-          "transition": "684876be-b9ed-44ef-908f-89a35c44cf9d"
-        },
-        {
-          "condition": "Error",
-          "transition": "5226b371-506d-4016-b05e-de46d2ddad6f"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "FunctionArn",
-          "value": lambdaArn,
-          "namespace": null
-        },
-        {
-          "name": "TimeLimit",
-          "value": "3"
-        }
-      ],
-      "metadata": {
+      },
+      "45d7b06a-9ba0-49e1-a926-c2c084b55dbe": {
         "position": {
           "x": 434,
           "y": 171
@@ -72,29 +34,7 @@ const vanityContactFlow = (lambdaArn: string) => ({
         "dynamicMetadata": {},
         "useDynamic": false
       },
-      "target": "Lambda"
-    },
-    {
-      "id": "684876be-b9ed-44ef-908f-89a35c44cf9d",
-      "type": "PlayPrompt",
-      "branches": [
-        {
-          "condition": "Success",
-          "transition": "f11eab37-3e3e-439e-96d2-e39e7374fee8"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "Text",
-          "value": "Success $.External.vanity1 $.External.vanity2 $.External.vanity3",
-          "namespace": null
-        },
-        {
-          "name": "TextToSpeechType",
-          "value": "text"
-        }
-      ],
-      "metadata": {
+      "684876be-b9ed-44ef-908f-89a35c44cf9d": {
         "position": {
           "x": 767,
           "y": 102
@@ -102,22 +42,57 @@ const vanityContactFlow = (lambdaArn: string) => ({
         "useDynamic": false
       }
     }
-  ],
-  "version": "1",
-  "start": "45d7b06a-9ba0-49e1-a926-c2c084b55dbe",
-  "metadata": {
-    "entryPointPosition": {
-      "x": 20,
-      "y": 20
-    },
-    "snapToGrid": false,
-    "name": "Vanity Lambda",
-    "description": null,
-    "type": "contactFlow",
-    "status": "published",
-    "hash": "ff20951eb1eeeace99ed1031b1428c35b70c588a24f67346e48de952b74a9d15"
   },
-  "type": "contactFlow"
+  "Actions": [
+    {
+      "Identifier": "5226b371-506d-4016-b05e-de46d2ddad6f",
+      "Parameters": {
+        "Text": "Error"
+      },
+      "Transitions": {
+        "NextAction": "f11eab37-3e3e-439e-96d2-e39e7374fee8",
+        "Errors": [],
+        "Conditions": []
+      },
+      "Type": "MessageParticipant"
+    },
+    {
+      "Identifier": "f11eab37-3e3e-439e-96d2-e39e7374fee8",
+      "Type": "DisconnectParticipant",
+      "Parameters": {},
+      "Transitions": {}
+    },
+    {
+      "Identifier": "45d7b06a-9ba0-49e1-a926-c2c084b55dbe",
+      "Parameters": {
+        "LambdaFunctionARN": lambdaArn,
+        "InvocationTimeLimitSeconds": "3"
+      },
+      "Transitions": {
+        "NextAction": "684876be-b9ed-44ef-908f-89a35c44cf9d",
+        "Errors": [
+          {
+            "NextAction": "5226b371-506d-4016-b05e-de46d2ddad6f",
+            "ErrorType": "NoMatchingError"
+          }
+        ],
+        "Conditions": []
+      },
+      "Type": "InvokeLambdaFunction"
+    },
+    {
+      "Identifier": "684876be-b9ed-44ef-908f-89a35c44cf9d",
+      "Parameters": {
+        "Text": "Success $.External.vanity1 $.External.vanity2 $.External.vanity3"
+      },
+      "Transitions": {
+        "NextAction": "f11eab37-3e3e-439e-96d2-e39e7374fee8",
+        "Errors": [],
+        "Conditions": []
+      },
+      "Type": "MessageParticipant"
+    }
+  ]
 })
 
 export { vanityContactFlow }

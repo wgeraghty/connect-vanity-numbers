@@ -117,7 +117,8 @@ export class VanityStack extends cdk.Stack {
         connectInstanceArn: connectInstanceArn.valueAsString,
         vanityLambdaArn: vanityLambda.functionArn,
         vanityLambdaName: vanityLambda.functionName,
-        counter: 3
+        counter: 5 // Forcing update to be called
+        // TODO: Clean this up
       }
     })
   }
