@@ -3,7 +3,9 @@ import * as lambda from '@aws-cdk/aws-lambda'
 import * as dynamodb from '@aws-cdk/aws-dynamodb'
 import * as iam from '@aws-cdk/aws-iam'
 import * as cr from '@aws-cdk/custom-resources'
-import * as logs from '@aws-cdk/aws-logs'
+import * as apigateway from '@aws-cdk/aws-apigateway'
+// import * as s3 from '@aws-cdk/aws-s3'
+// import * as logs from '@aws-cdk/aws-logs'
 
 import { RemovalPolicy } from '@aws-cdk/core'
 
@@ -113,5 +115,24 @@ export class VanityStack extends cdk.Stack {
         vanityLambdaArn: vanityLambda.functionArn
       }
     })
+
+    // Setup API for Web App
+    const vanityApiLambda = new lambda.Function(this, 'VanityApiHandler', {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      code: lambda.Code.fromAsset('resources/lambda'),
+      handler: 'vanity-api.handler',
+      environment: {
+        VANITY_TABLE_NAME: vanityTable.tableName
+      },
+      layers: [layer]
+    })
+    const api = new apigateway.RestApi(this, 'vanity-api', {
+      restApiName: 'Vanity Number API',
+      // description: ''
+    })
+    const getIntegration = new apigateway.LambdaIntegration(vanityApiLambda, {
+      // requestTemplates: { 'application/json': '{ 'statusCode': '200' }' }
+    })
+    api.root.addMethod('GET', getIntegration)
   }
 }
