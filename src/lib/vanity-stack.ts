@@ -11,14 +11,6 @@ export class VanityStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
-    // const waitHandle = new cdk.CfnWaitConditionHandle(this, 'WaitConditionHandle')
-    // const waitCondition = new cdk.CfnWaitCondition(this, 'WaitCondition', {
-    //   count: 1,
-    //   handle: waitHandle.ref,
-    //   timeout: '60'
-    // })
-    // scope.node.addDependency(waitCondition)
-
     // https://bobbyhadz.com/blog/aws-cdk-parameters-example#caveats-when-using-cdk-parameters
     // TODO: Switch to ENV instead of Parameter?
     const connectInstanceArn = new cdk.CfnParameter(this, 'connectInstanceArn', {
@@ -33,12 +25,16 @@ export class VanityStack extends cdk.Stack {
       }
     })
 
+    // AWS JavaScript SDK V3 is not supported in Lambda by default
+    // The package.zip file must be built before deploying, no reason to keep the zip in source control
+    // See 'Build Lambda Layer' in README.md
     const layer = new lambda.LayerVersion(this, 'AwsSdkV3', {
       removalPolicy: RemovalPolicy.RETAIN,
       code: lambda.Code.fromAsset(`${__dirname}/../resources/lambda-layer/package.zip`),
       compatibleRuntimes: [lambda.Runtime.NODEJS_14_X]
     })
 
+    // The lambda called by the Contact Flow
     const vanityLambda = new lambda.Function(this, 'VanityHandler', {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset('resources/lambda'),
@@ -48,8 +44,7 @@ export class VanityStack extends cdk.Stack {
       },
       layers: [layer]
     })
-
-    // Grant DB access
+    // Grant the lambda DB access
     vanityTable.grantReadWriteData(vanityLambda)
 
     // Grant Connect access to Vanity lambda
@@ -64,7 +59,7 @@ export class VanityStack extends cdk.Stack {
       principal: connectServicePrincipal
     })
 
-    // Setup CR Handler, it will be invoked by any custom resources defined below
+    // Setup Custom Resource Handler, it will be invoked by any custom resources defined below
     const customResourceLambda = new lambda.Function(this, 'CustomResourceHandler', {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset('resources/lambda'),
@@ -72,8 +67,8 @@ export class VanityStack extends cdk.Stack {
       layers: [layer]
     })
 
-    // Grant CR Handler access to Connect Contact Flow
-    // TODO: Standardize how IAM is handled, see ServicePrincipal above
+    // Grant Custom Resource Handler access to Connect Contact Flow
+    // TODO: Standardize how IAM is handled? see ServicePrincipal above
     const createContactFlowPolicy = new iam.ManagedPolicy(this, `CreateContactFlowPolicy`, {
       statements: [
         iam.PolicyStatement.fromJson({
@@ -85,7 +80,7 @@ export class VanityStack extends cdk.Stack {
             'connect:CreateContactFlow',
             'connect:DeleteContactFlow'
           ],
-          Resource: [`${connectInstanceArn.valueAsString}`, `${connectInstanceArn.valueAsString}/*`],
+          Resource: [connectInstanceArn.valueAsString, `${connectInstanceArn.valueAsString}/*`],
         }),
         // Also required or it will not see the lambda
         // Note: Manually create an IAM role to see what hints it gives for additional necessary permissions
@@ -104,21 +99,18 @@ export class VanityStack extends cdk.Stack {
 
     const provider = new cr.Provider(this, 'CustomResourceProvider', {
       onEventHandler: customResourceLambda,
-      logRetention: logs.RetentionDays.ONE_DAY
+      // logRetention: logs.RetentionDays.ONE_DAY
       // totalTimeout: cdk.Duration.minutes(1) // Requires isCompleteHandler
     })
 
-    // Process Contact Flow via CR Handler
+    // Process Contact Flow via Custom Resource Handler
     const customResource = new cdk.CustomResource(this, 'CreateContactFlow', {
-      serviceToken: provider.serviceToken, // Can use lambda directly if no provider is necessary: customResourceLambda.functionArn
+      serviceToken: provider.serviceToken,
       resourceType: 'Custom::LoadLambda',
       properties: {
         customAction: 'CreateContactFlow',
         connectInstanceArn: connectInstanceArn.valueAsString,
-        vanityLambdaArn: vanityLambda.functionArn,
-        vanityLambdaName: vanityLambda.functionName,
-        counter: 5 // Forcing update to be called
-        // TODO: Clean this up
+        vanityLambdaArn: vanityLambda.functionArn
       }
     })
   }

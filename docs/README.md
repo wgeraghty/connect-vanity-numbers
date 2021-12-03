@@ -47,3 +47,5 @@
 # TODO
   * Figure out minimum IAM permissions for deployment
   * Multiple stacks for front/back?
+  * Tests (verify lambda layer package.zip is built)
+

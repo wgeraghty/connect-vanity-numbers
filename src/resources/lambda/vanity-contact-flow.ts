@@ -3,6 +3,8 @@
 // Find the values in the URL of the Web UI
 // Do not use the downloaded version from the Web UI
 
+// TODO: Build out a nicer flow to replace this one?
+
 const vanityContactFlow = (lambdaArn: string) => ({
   "Version": "2019-10-30",
   "StartAction": "45d7b06a-9ba0-49e1-a926-c2c084b55dbe",
