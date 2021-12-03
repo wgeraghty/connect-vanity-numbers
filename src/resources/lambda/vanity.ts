@@ -1,6 +1,9 @@
 import { DynamoDBClient, GetItemCommand, GetItemCommandInput, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb"
 
+import { Context } from 'aws-lambda'
+import { ConnectContactFlowEvent, ConnectContactFlowResult } from 'aws-lambda/trigger/connect-contact-flow'
+
 const client = new DynamoDBClient({})
 const vanityTableName = process.env.VANITY_TABLE_NAME
 
@@ -31,7 +34,6 @@ const load = async (phoneNumber: string): Promise<VanityNumberRecord> => {
     }
 
   } catch (err) {
-    // TODO: Log reason
     console.log(err)
   }
 
@@ -43,10 +45,6 @@ const load = async (phoneNumber: string): Promise<VanityNumberRecord> => {
 }
 
 const save = async (record: VanityNumberRecord): Promise<void> => {
-  // TODO
-  // set current timestamp for querying recent updates
-  // ddb put
-
   try {
     const query: PutItemCommandInput = {
       TableName: vanityTableName,
@@ -56,7 +54,6 @@ const save = async (record: VanityNumberRecord): Promise<void> => {
     const result = await client.send(new PutItemCommand(query))
     console.log(result)
   } catch (err) {
-    // TODO: Log reason
     console.log(err)
   }
 }
@@ -67,17 +64,22 @@ const vanityFromNumber = async (phoneNumber: string): Promise<string[]> => {
   return [phoneNumber, 'FOO', 'BAR']
 }
 
-const handler = async (event: any, context: any): Promise<any> => {
+const handler = async (event: ConnectContactFlowEvent, context: Context): Promise<ConnectContactFlowResult | null> => {
 
-  console.log(event)
-  console.dir(event, { depth: null })
   console.log(JSON.stringify(event))
 
   try {
-    const phoneNumber = '555-1212' // TODO
+    // See docs/ContactFlowEvent.json
+    const contactAddress = event?.Details?.ContactData?.CustomerEndpoint?.Address
+    const contactType = event?.Details?.ContactData?.CustomerEndpoint?.Type
+
+    if (contactType != 'TELEPHONE_NUMBER' || typeof contactAddress !== 'string')
+      return null // TODO: Verify null triggers the error condition in the flow
+
+    const phoneNumber = contactAddress! // +1234567890, TODO: verify format?
     let vanityRecord = await load(phoneNumber)
 
-    if (!vanityRecord.vanityNumbers)
+    if (!vanityRecord?.vanityNumbers)
       // Vanity numbers have not been calculated for this number
       vanityRecord.vanityNumbers = await vanityFromNumber(phoneNumber)
 
@@ -88,9 +90,7 @@ const handler = async (event: any, context: any): Promise<any> => {
       await save(vanityRecord)
     }
 
-    // return vanityRecord
-
-    // Amazon Connect expects a string map response
+    // Using 1-based indexing for the names for human-ness in the Connect UI
     return {
       phoneNumber: vanityRecord.phoneNumber,
       vanity1: vanityRecord.vanityNumbers[0],
@@ -99,10 +99,8 @@ const handler = async (event: any, context: any): Promise<any> => {
     }
 
   } catch (err) {
-    // TODO: Log error
     console.log(err)
-
-    return {}
+    return null
   }
 }
 
