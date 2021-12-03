@@ -117,6 +117,7 @@ export class VanityStack extends cdk.Stack {
     })
 
     // Setup API for Web App
+    // https://docs.aws.amazon.com/cdk/latest/guide/serverless_example.html
     const vanityApiLambda = new lambda.Function(this, 'VanityApiHandler', {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset('resources/lambda'),
@@ -126,6 +127,7 @@ export class VanityStack extends cdk.Stack {
       },
       layers: [layer]
     })
+    vanityTable.grantReadData(vanityApiLambda)
     const api = new apigateway.RestApi(this, 'vanity-api', {
       restApiName: 'Vanity Number API',
       // description: ''

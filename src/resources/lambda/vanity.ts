@@ -7,11 +7,7 @@ import { ConnectContactFlowEvent, ConnectContactFlowResult } from 'aws-lambda/tr
 const client = new DynamoDBClient({})
 const vanityTableName = process.env.VANITY_TABLE_NAME
 
-type VanityNumberRecord = {
-  phoneNumber: string
-  vanityNumbers: string[] | null
-  modified: string | null // TODO: Date format available? Standardize as GMT?
-}
+import { VanityNumberRecord } from './vanity-common'
 
 const load = async (phoneNumber: string): Promise<VanityNumberRecord> => {
   try {
@@ -86,7 +82,7 @@ const handler = async (event: ConnectContactFlowEvent, context: Context): Promis
     console.log(vanityRecord)
     if (vanityRecord?.vanityNumbers != null) {
       // TODO: is this sanity check necessary
-      vanityRecord.modified = new Date().toISOString()
+      vanityRecord.modified = new Date().toUTCString()
       await save(vanityRecord)
     }
 
