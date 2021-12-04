@@ -63,9 +63,11 @@ const handler: CdkCustomResourceHandler = async (
     console.log('Contact Flow Content:', content)
 
     console.log('Creating Contact Flow')
+    // The Contact Flow name includes date/time to prevent the following error: Resource already exists with that name
+    // TODO: Find a cleaner way to handle this
     const flowResult = await createContactFlow({
       InstanceId: connectInstanceId,
-      Name: 'Vanity Number Contact Flow',
+      Name: `Vanity Number Contact Flow [${ new Date().toUTCString() }]`,
       Type: ContactFlowType.CONTACT_FLOW,
       Content: content
     })

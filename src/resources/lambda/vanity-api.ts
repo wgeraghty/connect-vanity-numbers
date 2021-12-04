@@ -32,7 +32,10 @@ const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent, cont
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', // Required for CORS support to work
+      },
       body: JSON.stringify(response)
     }
   } catch (err) {
