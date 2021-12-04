@@ -1,48 +1,49 @@
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult, Context } from 'aws-lambda'
-import { DynamoDBClient, QueryCommand, QueryCommandInput, ScanCommand, ScanCommandInput } from '@aws-sdk/client-dynamodb'
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import { VanityNumberRecord } from './vanity-common'
+import { DynamoDBClient, QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb'
+import { unmarshall } from '@aws-sdk/util-dynamodb'
 
 const client = new DynamoDBClient({})
 const vanityTableName = process.env.VANITY_TABLE_NAME
 
-const load = async (): Promise<VanityNumberRecord[]> => {
+const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // Either the KeyConditions or KeyConditionExpression parameter must be specified in the request
-    // const query: QueryCommandInput = {
-    //   TableName: vanityTableName
-    // }
-    // const result = await client.send(new QueryCommand(query))
+    // TODO: There has to be a better way
+    const result = await client.send(new QueryCommand({
+      TableName: vanityTableName,
+      IndexName: 'modified',
+      ProjectionExpression: 'phoneNumber, vanityNumbers, modified', // All the Web App UI needs to know
+      KeyConditionExpression: '#type = :type',
+      ExpressionAttributeNames: { '#type': 'type' },
+      ExpressionAttributeValues: { ':type': { 'S': 'vanity' } },
+      ScanIndexForward: false,
+      Limit: 5
+    }))
 
-    const scan: ScanCommandInput = {
-      TableName: vanityTableName
-    }
-    const result = await client.send(new ScanCommand(scan))
+    // const result = await client.send(new ScanCommand({
+    //   TableName: vanityTableName,
+    //   IndexName: 'modified',
+    //   Limit: 5
+    // }))
 
     console.log({ result })
 
-    for (const i of result.Items || []) {
-      const item = unmarshall(i) as VanityNumberRecord
-      console.log({ item })
-    }
-
-    const response = (result.Items || []).map((value, key) => unmarshall(value)) as VanityNumberRecord[]
+    const response = (result.Items || []).map((value, key) => unmarshall(value))
     console.log({ response })
 
-    return response
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(response)
+    }
   } catch (err) {
     console.log(err)
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([])
+    }
   }
 
-  return []
-}
-
-const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  return {
-    statusCode: 200,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(await load())
-  }
 }
 
 export { handler }

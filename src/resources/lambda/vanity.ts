@@ -34,6 +34,7 @@ const load = async (phoneNumber: string): Promise<VanityNumberRecord> => {
   }
 
   return {
+    type: 'vanity',
     phoneNumber,
     vanityNumbers: null,
     modified: null

@@ -8,6 +8,7 @@ import * as apigateway from '@aws-cdk/aws-apigateway'
 // import * as logs from '@aws-cdk/aws-logs'
 
 import { RemovalPolicy } from '@aws-cdk/core'
+import { Cors } from '@aws-cdk/aws-apigateway'
 
 export class VanityStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -20,11 +21,35 @@ export class VanityStack extends cdk.Stack {
       description: 'The ARN of the Amazon Connect instance you want to use.'
     })
 
+    // TODO: Use different provisioning?
+    // Note: Tables are not removed on cdk destroy
+
+    // "type" key set so there is something to query against
     const vanityTable = new dynamodb.Table(this, 'VanityNumber', {
+      // Note: RemovalPolicy.DESTROY should not be used in production
+      // Default is RemovalPolicy.RETAIN but leaves a mess while testing
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // TODO: Switch to RETAIN for release
       partitionKey: {
+        name: 'type',
+        type: dynamodb.AttributeType.STRING
+      },
+      sortKey: {
         name: 'phoneNumber',
         type: dynamodb.AttributeType.STRING
       }
+    })
+    // GSI allows additional sorting (most recently modified)
+    vanityTable.addGlobalSecondaryIndex({
+      indexName: 'modified',
+      partitionKey: {
+        name: 'type',
+        type: dynamodb.AttributeType.STRING
+      },
+      sortKey: {
+        name: 'modified',
+        type: dynamodb.AttributeType.STRING
+      },
+      projectionType: dynamodb.ProjectionType.ALL
     })
 
     // AWS JavaScript SDK V3 is not supported in Lambda by default
@@ -127,14 +152,28 @@ export class VanityStack extends cdk.Stack {
       },
       layers: [layer]
     })
+
+    // API needs DB access
     vanityTable.grantReadData(vanityApiLambda)
+
+    // Setup API Gateway
     const api = new apigateway.RestApi(this, 'vanity-api', {
       restApiName: 'Vanity Number API',
       // description: ''
     })
+
+    // Map API Gateway path to API lambda
     const getIntegration = new apigateway.LambdaIntegration(vanityApiLambda, {
       // requestTemplates: { 'application/json': '{ 'statusCode': '200' }' }
     })
     api.root.addMethod('GET', getIntegration)
+
+    // TODO:
+    // Allow cross site calls for now
+    // Ideally this is restricted to where the Web App UI is hosted
+    api.root.addCorsPreflight({
+      allowMethods: ['GET'],
+      allowOrigins: Cors.ALL_ORIGINS
+    })
   }
 }

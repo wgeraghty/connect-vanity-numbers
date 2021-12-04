@@ -11,6 +11,7 @@ import { vanityContactFlow } from './vanity-contact-flow'
 const client = new ConnectClient({})
 
 // Wrappers
+// TODO: await might be unnecessary here
 
 const associateLambda = async (input: AssociateLambdaFunctionCommandInput): Promise<AssociateLambdaFunctionCommandOutput> =>
   await client.send(new AssociateLambdaFunctionCommand(input))
@@ -18,10 +19,10 @@ const associateLambda = async (input: AssociateLambdaFunctionCommandInput): Prom
 const disassociateLambda = async (input: DisassociateLambdaFunctionCommandInput): Promise<DisassociateLambdaFunctionCommandOutput> =>
   await client.send(new DisassociateLambdaFunctionCommand(input))
 
-const createFlow = async (input: CreateContactFlowCommandInput): Promise<CreateContactFlowCommandOutput> =>
+const createContactFlow = async (input: CreateContactFlowCommandInput): Promise<CreateContactFlowCommandOutput> =>
   await client.send(new CreateContactFlowCommand(input))
 
-const deleteFlow = async (input: DeleteContactFlowCommandInput): Promise<DeleteContactFlowCommandOutput> =>
+const deleteContactFlow = async (input: DeleteContactFlowCommandInput): Promise<DeleteContactFlowCommandOutput> =>
   await client.send(new DeleteContactFlowCommand(input))
 
 // Main Handler
@@ -42,10 +43,9 @@ const handler: CdkCustomResourceHandler = async (
   }
 
   // Contact Flow calls just use the Id, not the full ARN
-  // Associate/Disassociate Lambda still use the full ARN
+  // Associate/Disassociate Lambda do use the full ARN
   const connectInstanceArn = event.ResourceProperties?.connectInstanceArn
-  const connectInstanceId = connectInstanceArn.split("/")[1]
-
+  const connectInstanceId = connectInstanceArn.split("/")[1] // Just the Id
   const vanityLambdaArn = event.ResourceProperties?.vanityLambdaArn
 
   if (event.RequestType == 'Create') {
@@ -63,7 +63,7 @@ const handler: CdkCustomResourceHandler = async (
     console.log('Contact Flow Content:', content)
 
     console.log('Creating Contact Flow')
-    const flowResult = await createFlow({
+    const flowResult = await createContactFlow({
       InstanceId: connectInstanceId,
       Name: 'Vanity Number Contact Flow',
       Type: ContactFlowType.CONTACT_FLOW,
@@ -84,12 +84,21 @@ const handler: CdkCustomResourceHandler = async (
   if (event.RequestType == 'Delete') {
     // Remove flow before disassociating lambda
     console.log('Deleting Contact Flow')
-    const flowResult = await deleteFlow({
-      InstanceId: connectInstanceId,
-      ContactFlowId: event.PhysicalResourceId
-    })
+    try {
+      const flowResult = await deleteContactFlow({
+        InstanceId: connectInstanceId,
+        ContactFlowId: event.PhysicalResourceId
+      })
+    } catch (err) {
+      /*
+        Contact Flow is likely still being used:
+            Received response status [FAILED] from custom resource. Message returned: Invalid request.
+            Contact Flow Id is referenced in the following resources: [arn:aws:connect:us-west-2:...:instance/.../phone-number/...]
+        We can continue safely, but this fragment will be left behind
+      */
+    }
 
-    console.log('Disassociating Contact Flow')
+    console.log('Disassociating Lambda')
     const lambdaResult = await disassociateLambda({
       InstanceId: connectInstanceArn,
       FunctionArn: vanityLambdaArn
