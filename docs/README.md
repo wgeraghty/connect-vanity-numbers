@@ -56,6 +56,9 @@ The demo requires the endpoint displayed in the output when this project is depl
   * Install dependencies with `npm i` in the src folder
   * Build the project with `npm run build`
   * Deploy with `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the src folder
+  * Copy the VanityStack.vanityapiEndpointXXXXXX address from CDK output to use in the Web App
+  `Outputs:
+VanityStack.vanityapiEndpointXXXXXX = https://XXXXXXX.execute-api.us-west-2.amazonaws.com/prod/`
   * Update Amazon Connect instance to use new Contact Flow: Vanity Number Contact Flow [DATE]
 
 ## Deployment Update Steps
@@ -70,6 +73,7 @@ The demo requires the endpoint displayed in the output when this project is depl
 ## Architecture Diagram
 
 ![Architecture Diagram](../docs/Amazon%20Connect%20Vanity%20Numbers.drawio.png)
+[Download Draw.io File](../docs/Amazon%20Connect%20Vanity%20Numbers.drawio)
 
 ## Word List
   * List pulled from https://github.com/first20hours/google-10000-english/
