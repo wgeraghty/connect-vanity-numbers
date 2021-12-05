@@ -53,13 +53,13 @@
   * List pulled from https://github.com/first20hours/google-10000-english/
   * List saved at `src/resources/lambda/word-finder/sorted-filtered-word-list.txt`
 
-# Useful Commands
+## Useful Commands
 
-## Filter to lines under 11 characters in length
-awk 'length($0) < 11' your-file
+### Filter to lines under 11 characters in length
+`awk 'length($0) < 11' your-file`
 
-## Sort by line length, longest first
-awk '{print length, $0}' your-file | sort -n | cut -d " " -f2-
+### Sort by line length, longest first
+`awk '{print length, $0}' your-file | sort -n | cut -d " " -f2-`
 
 # TODO
   * Automated lambda layer package build
