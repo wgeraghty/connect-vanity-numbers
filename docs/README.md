@@ -47,13 +47,13 @@ The demo requires the endpoint displayed in the output when this project is depl
 ## Deployment Steps
   * Setup AWS Account
   * Create Amazon Connect instance, copy the Connect ARN for the `cdk deploy` step below
-  * Configure aws-cli, make sure default region matches region with Amazon Connect instance
-  * [Bootstrap CDK](#aws-account-cdk-bootstrap)
+  * Configure aws-cli with `aws configure` making sure default region matches region with the Amazon Connect instance
+  * [Bootstrap CDK](#aws-account-cdk-bootstrap) may be required
   * [Build lambda layer](#build-lambda-layer)
   * Install dependencies with `npm i` in the src folder
   * Build the project with `npm run build`
-  * `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the src folder
-  * Update Amazon Connect instance to use new Contact Flow
+  * Deploy with `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the src folder
+  * Update Amazon Connect instance to use new Contact Flow: Vanity Number Contact Flow [DATE]
 
 ## Deployment Update Steps
   * Make any necessary changes
