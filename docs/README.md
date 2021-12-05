@@ -49,9 +49,16 @@ The demo requires the endpoint displayed in the output when this project is depl
   * Create Amazon Connect instance, copy the Connect ARN for the `cdk deploy` step below
   * Configure aws-cli, make sure default region matches region with Amazon Connect instance
   * [Bootstrap CDK](#aws-account-cdk-bootstrap)
-  * Build lambda layer
-  * `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/`
+  * [Build lambda layer](#build-lambda-layer)
+  * Install dependencies with `npm i` in the src folder
+  * Build the project with `npm run build`
+  * `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the src folder
   * Update Amazon Connect instance to use new Contact Flow
+
+## Deployment Update Steps
+  * Make any necessary changes
+  * `npm run watch` can be used to auto compile file changes while developing, or run `npm run build`
+  * `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the src folder
 
 ## Teardown Steps
   * Take Contact Flow out of rotation
