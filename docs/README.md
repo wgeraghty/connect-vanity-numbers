@@ -5,20 +5,20 @@
   The project is configured with VSCode Dev Containers to keep the build environment consistent across all systems.
   For more information see: https://code.visualstudio.com/docs/remote/containers
 
+
+## Default folder mappings inside the container (docker-compose.yml)
+  * `- ..:/workspace:cached`
+  * `- ../.aws:/root/.aws:cached`
+  Do NOT commit any changes that contain files from the .aws folder, it has been added to .gitignore but be careful anyways.
+
+## VSCode Dev Container Config
+  `aws configure` can be run inside the container or the .aws folder can be remapped in .devcontainer/docker-compose.yml:
+
 # Structure
   * docs/: Documentation
   * .devcontainer/: VSCode/Docker config
   * lambda-layer/: AWS SDK v3 layer build files
   * src/: The main project
-
-# Default folder mappings inside the container (docker-compose.yml)
-  * / -> /workspace
-  * .aws/ -> /root/.aws: Create this folder before launching in dev containers.
-
-# VSCode Dev Container Config
-  `aws configure` can be run inside the container or the .aws folder can be remapped .devcontainer/docker-compose.yml:
-  * `- ../.aws:/root/.aws:cached`
-    Do NOT commit any changes that contain files from the .aws folder, it has been added to .gitignore but be careful anyways.
 
 # AWS Account CDK Bootstrap
   * `cdk bootstrap aws://ACCOUNT-NUMBER/REGION`
@@ -38,9 +38,9 @@
 
 # Deployment Steps
   * Setup AWS Account
-  * Create Amazon Connect instance, copy the ARN for the `cdk deploy` step below
+  * Create Amazon Connect instance, copy the Connect ARN for the `cdk deploy` step below
   * Configure aws-cli, make sure default region matches region with Amazon Connect instance
-  * (Bootstrap CDK)[#aws-account-cdk-bootstrap]
+  * [Bootstrap CDK](#aws-account-cdk-bootstrap)
   * Build lambda layer
   * `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/`
   * Update Amazon Connect instance to use new Contact Flow
