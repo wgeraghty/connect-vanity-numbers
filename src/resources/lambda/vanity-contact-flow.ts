@@ -15,10 +15,10 @@ const vanityContactFlow = (lambdaArn: string) => ({
     },
     "snapToGrid": false,
     "ActionMetadata": {
-      "5226b371-506d-4016-b05e-de46d2ddad6f": {
+      "684876be-b9ed-44ef-908f-89a35c44cf9d": {
         "position": {
-          "x": 766,
-          "y": 281
+          "x": 767,
+          "y": 102
         },
         "useDynamic": false
       },
@@ -36,10 +36,10 @@ const vanityContactFlow = (lambdaArn: string) => ({
         "dynamicMetadata": {},
         "useDynamic": false
       },
-      "684876be-b9ed-44ef-908f-89a35c44cf9d": {
+      "5226b371-506d-4016-b05e-de46d2ddad6f": {
         "position": {
-          "x": 767,
-          "y": 102
+          "x": 766,
+          "y": 281
         },
         "useDynamic": false
       }
@@ -47,9 +47,9 @@ const vanityContactFlow = (lambdaArn: string) => ({
   },
   "Actions": [
     {
-      "Identifier": "5226b371-506d-4016-b05e-de46d2ddad6f",
+      "Identifier": "684876be-b9ed-44ef-908f-89a35c44cf9d",
       "Parameters": {
-        "Text": "Error"
+        "Text": "Your first vanity number is $.External.vanity1.  Your second vanity number is $.External.vanity2.  Your third vanity number is $.External.vanity3.  Thank you! Goodbye!"
       },
       "Transitions": {
         "NextAction": "f11eab37-3e3e-439e-96d2-e39e7374fee8",
@@ -83,9 +83,9 @@ const vanityContactFlow = (lambdaArn: string) => ({
       "Type": "InvokeLambdaFunction"
     },
     {
-      "Identifier": "684876be-b9ed-44ef-908f-89a35c44cf9d",
+      "Identifier": "5226b371-506d-4016-b05e-de46d2ddad6f",
       "Parameters": {
-        "Text": "Success $.External.vanity1 $.External.vanity2 $.External.vanity3"
+        "Text": "I'm sorry, I was unable to figure out your vanity numbers."
       },
       "Transitions": {
         "NextAction": "f11eab37-3e3e-439e-96d2-e39e7374fee8",
