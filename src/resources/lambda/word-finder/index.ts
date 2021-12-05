@@ -40,11 +40,11 @@ export class WordFinder {
 
     console.log('WordFinder::init')
     console.log(__dirname)
-    console.log(path.resolve("./filtered-word-list.txt"))
+    console.log(path.resolve('./filtered-word-list.txt'))
 
     const promises = [
       new Promise<void>((resolve, reject) => {
-        fs.readFile(path.resolve("./word-finder/sorted-filtered-word-list.txt"), 'utf8', (err, contents) => {
+        fs.readFile(path.resolve('./word-finder/sorted-filtered-word-list.txt'), 'utf8', (err, contents) => {
           if (err) {
             console.log(err)
             this.words = []

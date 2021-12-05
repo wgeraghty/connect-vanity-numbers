@@ -24,7 +24,7 @@ export class VanityStack extends cdk.Stack {
     // TODO: Use different provisioning?
     // Note: Tables are not removed on cdk destroy
 
-    // "type" key set so there is something to query against
+    // 'type' key set so there is something to query against
     const vanityTable = new dynamodb.Table(this, 'VanityNumber', {
       // Note: RemovalPolicy.DESTROY should not be used in production
       // Default is RemovalPolicy.RETAIN but leaves a mess while testing
