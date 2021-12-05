@@ -1,4 +1,7 @@
 # Amazon Connect Vanity Numbers
+
+Project description is available [here](docs/project-description.md).  Responses to questions have been sent via email.
+
 ## Environment
   * VSCode
   * Docker
@@ -72,7 +75,7 @@ The demo requires the endpoint displayed in the output when this project is depl
   * List pulled from https://github.com/first20hours/google-10000-english/
   * List saved at `src/resources/lambda/word-finder/sorted-filtered-word-list.txt`
 
-### Useful Commands
+### Useful Word List Commands
 
 #### Filter to lines under 11 characters in length
 `awk 'length($0) < 11' your-file`
