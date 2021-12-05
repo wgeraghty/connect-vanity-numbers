@@ -36,7 +36,7 @@ The demo requires the endpoint displayed in the output when this project is depl
     See Bootstrapping at https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html
 
 ## Build Lambda Layer
-  AWS JavaScript SDK V3 is not included in Lambda, a custom layer must be built for it:
+  AWS JavaScript SDK V3 is not included in Lambda, a custom layer must be built for it.  To build `src/resources/lambda-layer/package.zip` run:
   * `cd lambda-layer`
   * `./build.sh`
 
@@ -45,7 +45,7 @@ The demo requires the endpoint displayed in the output when this project is depl
   * `npm install {packageName}`
   * `cd ..`
   * `./build.sh`
-  * Redeploy main project
+  * [Redeploy main project](#deployment-update-steps)
 
 ## Deployment Steps
   * Setup AWS Account
@@ -53,9 +53,11 @@ The demo requires the endpoint displayed in the output when this project is depl
   * Configure aws-cli with `aws configure` making sure default region matches region with the Amazon Connect instance
   * [Bootstrap CDK](#aws-account-cdk-bootstrap) may be required
   * [Build lambda layer](#build-lambda-layer)
-  * Install dependencies with `npm i` in the src folder
+    * `cd lambda-layer`
+    * `./build.sh`
+  * Install dependencies with `npm i` in the `src` folder
   * Build the project with `npm run build`
-  * Deploy with `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the src folder
+  * Deploy with `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the `src` folder
   * Copy the VanityStack.vanityapiEndpointXXXXXX address from CDK output to use in the Web App
   `Outputs:
 VanityStack.vanityapiEndpointXXXXXX = https://XXXXXXX.execute-api.us-west-2.amazonaws.com/prod/`
@@ -64,7 +66,7 @@ VanityStack.vanityapiEndpointXXXXXX = https://XXXXXXX.execute-api.us-west-2.amaz
 ## Deployment Update Steps
   * Make any necessary changes
   * `npm run watch` can be used to auto compile file changes while developing, or run `npm run build`
-  * `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the src folder
+  * `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the `src` folder
 
 ## Teardown Steps
   * Take Contact Flow out of rotation
