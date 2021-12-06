@@ -1,0 +1,11 @@
+{
+  "name": "Amazon Connect Vanity Numbers UI",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "settings": {},
+  "extensions": [
+    "eamodio.gitlens"
+  ],
+  "forwardPorts": []
+}
