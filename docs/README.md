@@ -75,7 +75,7 @@ VanityStack.vanityapiEndpointXXXXXX = https://XXXXXXX.execute-api.us-west-2.amaz
 ## Architecture Diagram
 
 ![Architecture Diagram](../docs/Amazon%20Connect%20Vanity%20Numbers.drawio.png)
-[Download Draw.io File](../docs/Amazon%20Connect%20Vanity%20Numbers.drawio)
+* [Download Draw.io File](../docs/Amazon%20Connect%20Vanity%20Numbers.drawio)
 
 ## Word List
   * List pulled from https://github.com/first20hours/google-10000-english/
