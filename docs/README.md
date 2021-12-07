@@ -1,6 +1,6 @@
 # Amazon Connect Vanity Numbers
 
-Project description is available [here](docs/project-description.md).  It is written in TypeScript and deployed with AWS CDK.  The CDK deployment includes:
+Project description is available [here](../docs/project-description.md).  It is written in TypeScript and deployed with AWS CDK.  The CDK deployment includes:
 
 - Vanity Number Lambda
 - Contact Flow via Custom Resource
