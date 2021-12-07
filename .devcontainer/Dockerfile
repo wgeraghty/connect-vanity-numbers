@@ -8,4 +8,5 @@ RUN update-ca-certificates \
   && apt-get install -y python-pip \
   && pip --no-cache-dir install awscli \
   && npm install -g typescript \
-  && npm install -g aws-cdk
+  && npm install -g aws-cdk \
+  && npm install -g @angular/cli
