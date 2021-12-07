@@ -68,7 +68,7 @@ VanityStack.vanityapiEndpointXXXXXX = https://XXXXXXX.execute-api.us-west-2.amaz
 ## Deployment Update Steps
   * Make any necessary changes
   * `npm run watch` can be used to auto compile file changes while developing, or run `npm run build`
-  * `cdk deploy --parameters connectInstanceArn=arn:aws:connect:::instance/` in the `src` folder
+  * `cdk deploy` in the `src` folder
 
 ## Teardown Steps
   * Take Contact Flow out of rotation.  Leaving it active will cause the flow to remain behind on teardown.
